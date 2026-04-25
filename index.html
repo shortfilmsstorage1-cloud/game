@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aarav Home — Game Library</title>
+  <style>
+    /* ─── CSS Variables ─── */
+    :root {
+      --bg:          #f5ede0;
+      --bg2:         #eddfc8;
+      --surface:     #fff8ef;
+      --surface2:    #fdf0dc;
+      --text:        #2c1a0e;
+      --text-muted:  #7a5c3e;
+      --accent:      #b5451b;
+      --accent2:     #d4882e;
+      --gold:        #c9860a;
+      --card-front:  #fff8ef;
+      --card-back:   #2c1a0e;
+      --card-back-text: #f5ede0;
+      --shadow:      rgba(44,26,14,0.18);
+      --border:      #d4b896;
+      --badge-bg:    #fdf0dc;
+      --badge-text:  #7a5c3e;
+      --header-glow: rgba(181,69,27,0.25);
+    }
+    [data-theme="dark"] {
+      --bg:          #1a0f08;
+      --bg2:         #251509;
+      --surface:     #2c1a0e;
+      --surface2:    #3a2314;
+      --text:        #f5ede0;
+      --text-muted:  #c4a882;
+      --accent:      #e05a28;
+      --accent2:     #e8a040;
+      --gold:        #e8b847;
+      --card-front:  #2c1a0e;
+      --card-back:   #1a0f08;
+      --card-back-text: #f5ede0;
+      --shadow:      rgba(0,0,0,0.5);
+      --border:      #5a3820;
+      --badge-bg:    #3a2314;
+      --badge-text:  #c4a882;
+      --header-glow: rgba(224,90,40,0.35);
+    }
+
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    /* ─── Floating Particles ─── */
+    #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ─── Header ─── */
+    header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 3.5rem 1rem 2rem;
+      background: linear-gradient(160deg, var(--bg2) 0%, var(--bg) 100%);
+    }
+    .header-deco {
+      font-size: 2rem;
+      letter-spacing: 0.6rem;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { opacity: 0.7; }
+      50%      { opacity: 1; text-shadow: 0 0 20px var(--header-glow); }
+    }
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-shadow: 2px 3px 8px var(--shadow);
+      line-height: 1.1;
+    }
+    .subtitle {
+      margin-top: 0.6rem;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .header-line {
+      width: 80px; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 1.2rem auto 0;
+      border-radius: 2px;
+    }
+
+    /* ─── Controls Bar ─── */
+    .controls {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; justify-content: center;
+      padding: 0.8rem 1rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+    #searchInput {
+      flex: 1 1 220px; max-width: 360px;
+      padding: 0.52rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    #searchInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--header-glow); }
+    #searchInput::placeholder { color: var(--text-muted); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.52rem 1.1rem;
+      border: none; border-radius: 999px; cursor: pointer;
+      font-size: 0.9rem; font-family: inherit; font-weight: 600;
+      transition: transform 0.15s, box-shadow 0.2s, background 0.25s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(181,69,27,0.4);
+    }
+    .btn-primary:hover { background: var(--accent2); box-shadow: 0 4px 14px rgba(181,69,27,0.5); }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    #themeToggle { font-size: 1.1rem; padding: 0.5rem 0.85rem; }
+
+    /* ─── Game Count Badge ─── */
+    .count-badge {
+      font-size: 0.82rem; color: var(--text-muted); padding: 0 0.5rem;
+    }
+
+    /* ─── Grid ─── */
+    main {
+      position: relative; z-index: 5;
+      max-width: 1280px; margin: 0 auto;
+      padding: 2rem 1.2rem 4rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    /* ─── Card (flip) ─── */
+    .card-wrapper {
+      perspective: 900px;
+      cursor: pointer;
+    }
+    .card-wrapper.hidden { display: none; }
+
+    .card {
+      position: relative;
+      width: 100%; padding-top: 140%;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1), box-shadow 0.3s;
+      border-radius: 16px;
+    }
+    .card-wrapper:hover .card:not(.flipped) {
+      transform: rotateY(8deg) translateY(-4px);
+      box-shadow: -8px 12px 32px var(--shadow);
+    }
+    .card.flipped { transform: rotateY(180deg); }
+
+    .face {
+      position: absolute; inset: 0;
+      border-radius: 16px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    /* ─── Card Front ─── */
+    .front {
+      background: var(--card-front);
+      border: 2px solid var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px var(--shadow);
+      padding: 1.6rem;
+      gap: 1rem;
+    }
+    .front::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, var(--header-glow) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .card-number {
+      position: absolute; top: 12px; left: 14px;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+    .card-emoji {
+      font-size: 4rem;
+      filter: drop-shadow(0 4px 10px var(--shadow));
+      animation: float 3s ease-in-out infinite;
+      line-height: 1;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-7px); }
+    }
+    .card-wrapper:nth-child(even) .card-emoji { animation-delay: -1.5s; }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .card-meta {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
+    }
+    .badge {
+      font-size: 0.72rem; font-weight: 600;
+      padding: 0.22rem 0.65rem;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      border: 1px solid var(--border);
+    }
+    .flip-hint {
+      position: absolute; bottom: 12px;
+      font-size: 0.7rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.3rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 0.5; }
+      50%      { opacity: 1; }
+    }
+
+    /* ─── Card Back ─── */
+    .back {
+      background: var(--card-back);
+      transform: rotateY(180deg);
+      display: flex; flex-direction: column;
+      padding: 1.4rem;
+      gap: 0.85rem;
+      box-shadow: 0 4px 20px var(--shadow);
+      border: 2px solid var(--accent);
+    }
+    .back-title {
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--card-back-text);
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .back-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      flex: 1;
+      overflow-y: auto;
+    }
+    [data-theme="dark"] .back-desc { color: #c4a882; }
+    .back-footer {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    }
+    .rules-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.78rem; font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .rules-link:hover { background: var(--accent2); transform: scale(1.04); }
+    .back-meta {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+    }
+    .back-badge {
+      font-size: 0.7rem;
+      padding: 0.18rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(181,69,27,0.2);
+      color: var(--accent2);
+      border: 1px solid rgba(181,69,27,0.3);
+    }
+
+    /* ─── Random Picker Modal ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      max-width: 420px; width: 90%;
+      text-align: center;
+      position: relative;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .modal-emoji { font-size: 4.5rem; display: block; margin-bottom: 0.5rem; }
+    .modal-game  { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin: 0.5rem 0; }
+    .modal-desc  { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem; }
+    .modal-close {
+      position: absolute; top: 12px; right: 16px;
+      background: none; border: none; font-size: 1.4rem;
+      cursor: pointer; color: var(--text-muted);
+    }
+    .modal-close:hover { color: var(--accent); }
+    .spin-container {
+      font-size: 2rem; letter-spacing: 0.2em;
+      color: var(--gold);
+      margin: 0.8rem 0 1.2rem;
+      min-height: 2.8rem;
+    }
+
+    /* ─── No Results ─── */
+    #noResults {
+      display: none;
+      grid-column: 1 / -1;
+      text-align: center; padding: 4rem 1rem;
+      color: var(--text-muted); font-size: 1.2rem; font-style: italic;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      position: relative; z-index: 5;
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      h1    { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating Particles -->
+<div id="particles"></div>
+
+<!-- Header -->
+<header>
+  <div class="header-deco">♟ ♠ ♣ ♥ ♦ ♟</div>
+  <h1>Aarav Home</h1>
+  <p class="subtitle">A curated collection of 12 games — roll, deal, and strategize!</p>
+  <div class="header-line"></div>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="🔍  Search games…" aria-label="Search games" />
+  <button class="btn btn-primary" id="randomBtn">🎲 Random Game</button>
+  <button class="btn btn-secondary" id="themeToggle" title="Toggle dark/light mode">🌙</button>
+  <span class="count-badge"><span id="visibleCount">12</span> of 12 games</span>
+</div>
+
+<!-- Main Grid -->
+<main>
+  <div class="grid" id="gameGrid">
+    <!-- ── GAME 1: CATAN ── -->
+    <div class="card-wrapper" data-title="catan settlers" data-players="3-6" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#1</span>
+          <span class="card-emoji">🏝️</span>
+          <div class="card-title">CATAN + Extension</div>
+          <div class="card-meta">
+            <span class="badge">👥 3–6 Players</span>
+            <span class="badge">⏱ 60–120 min</span>
+            <span class="badge">🧠 Strategy</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🏝️ CATAN + Extension</div>
+          <div class="back-desc">
+            Settle the island of Catan by collecting and trading resources — wood, brick, ore, grain, and wool. Build roads, settlements, and cities to earn victory points. Trade smartly with opponents and use development cards to gain the edge. The 5–6 player extension expands the board and gameplay for epic sessions with the whole crew!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">🏆 Spiel des Jahres 1995</span>
+            <span class="back-badge">Age 10+</span>
+            <span class="back-badge">Complexity: Medium</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://www.catan.com/sites/default/files/2021-06/catan_base_rules_2020_200707.pdf" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 2: SCOTLAND YARD ── -->
+    <div class="card-wrapper" data-title="scotland yard mister x detective london" data-players="2-6" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#2</span>
+          <span class="card-emoji">🕵️</span>
+          <div class="card-title">Scotland Yard</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–6 Players</span>
+            <span class="badge">⏱ 45 min</span>
+            <span class="badge">🔍 Deduction</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🕵️ Scotland Yard</div>
+          <div class="back-desc">
+            One player is the elusive Mr. X, slipping through London via taxi, bus, and underground. The rest are detectives racing to corner him. Mr. X's location is revealed only at key moments — can the detectives close in before he escapes? A thrilling hidden-movement cat-and-mouse chase across the map of London!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">🏆 Spiel des Jahres 1983</span>
+            <span class="back-badge">Age 10+</span>
+            <span class="back-badge">Complexity: Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://www.ravensburger.us/discover/scotland-yard/index.html" target="_blank" rel="noopener">📖 Official Rules</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 3: SEQUENCE ── -->
+    <div class="card-wrapper" data-title="sequence board card chips rows" data-players="2-12" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#3</span>
+          <span class="card-emoji">🃏</span>
+          <div class="card-title">Sequence</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–12 Players</span>
+            <span class="badge">⏱ 30–60 min</span>
+            <span class="badge">🎯 Strategy</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🃏 Sequence</div>
+          <div class="back-desc">
+            Play a card from your hand and place a chip on the matching space on the board. Get five chips in a row — that's a SEQUENCE! Block opponents, form alliances in teams, and outmaneuver everyone. Easy to learn, endlessly fun — a perfect mix of card strategy and board positioning for all ages.
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 7+</span>
+            <span class="back-badge">Teams or Solo</span>
+            <span class="back-badge">Complexity: Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://www.jaxgames.com/wp-content/uploads/2019/10/Sequence-Rules.pdf" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 4: MAFIA VENDETTA ── -->
+    <div class="card-wrapper" data-title="mafia vendetta card game social deduction" data-players="6-12" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#4</span>
+          <span class="card-emoji">🤫</span>
+          <div class="card-title">Mafia Vendetta</div>
+          <div class="card-meta">
+            <span class="badge">👥 6–12 Players</span>
+            <span class="badge">⏱ 20–40 min</span>
+            <span class="badge">🎭 Social Deduction</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🤫 Mafia Vendetta</div>
+          <div class="back-desc">
+            The classic Mafia game reimagined as a slick card game. Hidden mafiosi secretly eliminate innocent townspeople each night, while the town debates and votes to eliminate suspects by day. Bluff, read body language, and form alliances — or betray everyone. Roles include Don, Detective, Doctor, and more. Lie well or die fast.
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 14+</span>
+            <span class="back-badge">Party Game</span>
+            <span class="back-badge">Complexity: Light-Medium</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://boardgamegeek.com/boardgame/134349/mafia-vendetta" target="_blank" rel="noopener">📖 Rules on BGG</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 5: EXPLODING KITTENS NSFW ── -->
+    <div class="card-wrapper" data-title="exploding kittens nsfw adult party card game" data-players="2-5" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#5</span>
+          <span class="card-emoji">💣</span>
+          <div class="card-title">Exploding Kittens NSFW</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–5 Players</span>
+            <span class="badge">⏱ 15–30 min</span>
+            <span class="badge">🔞 Adults Only</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">💣 Exploding Kittens NSFW</div>
+          <div class="back-desc">
+            The outrageously funny adult edition of the wildly popular Exploding Kittens. Draw cards until someone draws an Exploding Kitten — and they're out! Use Skip, Attack, Defuse, See the Future, and Nope cards to survive. The NSFW edition features hilariously inappropriate artwork that makes every card a surprise. 18+ laughs guaranteed!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">🔞 Age 18+</span>
+            <span class="back-badge">Party Card Game</span>
+            <span class="back-badge">Complexity: Very Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://www.explodingkittens.com/pages/rules" target="_blank" rel="noopener">📖 Official Rules</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 6: ROOK ── -->
+    <div class="card-wrapper" data-title="rook card game trick taking christian family" data-players="2-6" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#6</span>
+          <span class="card-emoji">🐦</span>
+          <div class="card-title">Rook</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–6 Players</span>
+            <span class="badge">⏱ 45–60 min</span>
+            <span class="badge">♠ Trick-Taking</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🐦 Rook</div>
+          <div class="back-desc">
+            A classic trick-taking card game played with a unique 57-card deck (numbered 1–14 in four colors, plus the mighty Rook bird). Players bid for the right to name the trump suit, then race to capture enough points to fulfill their bid. A beloved family favorite since 1906 — sharp bidding and clever play decide the winner!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 10+</span>
+            <span class="back-badge">Classic 1906</span>
+            <span class="back-badge">Complexity: Medium</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://www.hasbro.com/common/instruct/Rook.PDF" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 7: CLUE CARD GAME ── -->
+    <div class="card-wrapper" data-title="clue cluedo card game murder mystery detective" data-players="3-5" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#7</span>
+          <span class="card-emoji">🔎</span>
+          <div class="card-title">Clue Card Game</div>
+          <div class="card-meta">
+            <span class="badge">👥 3–5 Players</span>
+            <span class="badge">⏱ 30–45 min</span>
+            <span class="badge">🔍 Mystery</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🔎 Clue Card Game</div>
+          <div class="back-desc">
+            A fast-paced card adaptation of the legendary Clue (Cluedo) murder mystery. Deduce who committed the crime, with which weapon, and where — using the cards in your hand and clues revealed each round. Bluff your way through suspect hands and race to be the first to crack the case. The travel-sized deduction thrill!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 8+</span>
+            <span class="back-badge">Deduction</span>
+            <span class="back-badge">Complexity: Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://www.hasbro.com/common/instruct/Clue_2002.pdf" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 8: UNO FLIP ── -->
+    <div class="card-wrapper" data-title="uno flip card game family wild reverse" data-players="2-10" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#8</span>
+          <span class="card-emoji">🔄</span>
+          <div class="card-title">UNO Flip!</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–10 Players</span>
+            <span class="badge">⏱ 30–60 min</span>
+            <span class="badge">🎴 Card Game</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🔄 UNO Flip!</div>
+          <div class="back-desc">
+            UNO with a devious twist — the deck has a light side and a dark side. When someone plays the Flip card, the whole game flips! The dark side has much harsher penalty cards: Draw 5, Skip Everyone, and the brutal Wild Draw Color card. Shed your cards and yell UNO… if you dare flip it!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 7+</span>
+            <span class="back-badge">Light + Dark Sides</span>
+            <span class="back-badge">Complexity: Very Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://service.mattel.com/instruction_sheets/GDR44-Eng.pdf" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 9: PHASE 10 ── -->
+    <div class="card-wrapper" data-title="phase 10 card game rummy phases sets runs" data-players="2-6" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#9</span>
+          <span class="card-emoji">🔟</span>
+          <div class="card-title">Phase 10</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–6 Players</span>
+            <span class="badge">⏱ 45–90 min</span>
+            <span class="badge">🃏 Rummy-Style</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🔟 Phase 10</div>
+          <div class="back-desc">
+            Complete 10 specific phases — sets of same-numbers, runs of consecutive numbers, or matching colors — before anyone else. Each phase gets harder! Miss your phase and you must try again next round while others advance. Wild and Skip cards add chaos. A satisfying race of strategy and luck beloved by millions worldwide.
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 7+</span>
+            <span class="back-badge">10 Phases</span>
+            <span class="back-badge">Complexity: Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://service.mattel.com/instruction_sheets/W4729-0920.pdf" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 10: ALIVE 5 ── -->
+    <div class="card-wrapper" data-title="alive 5 card game survival elimination" data-players="3-8" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#10</span>
+          <span class="card-emoji">💀</span>
+          <div class="card-title">Alive 5</div>
+          <div class="card-meta">
+            <span class="badge">👥 3–8 Players</span>
+            <span class="badge">⏱ 20–40 min</span>
+            <span class="badge">⚡ Fast-Paced</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">💀 Alive 5</div>
+          <div class="back-desc">
+            A fast-paced survival card game where players fight to stay alive and be the last one standing. Use action cards to attack opponents, dodge attacks, and pull off clever combos. Every round could be your last — or your comeback. Quick to learn, intense to play, and perfect for groups who love elimination-style excitement!
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 12+</span>
+            <span class="back-badge">Elimination Style</span>
+            <span class="back-badge">Complexity: Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://boardgamegeek.com/boardgame/alive-5" target="_blank" rel="noopener">📖 Rules on BGG</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 11: SPLENDOR ── -->
+    <div class="card-wrapper" data-title="splendor gem merchant renaissance strategy engine building" data-players="2-4" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#11</span>
+          <span class="card-emoji">💎</span>
+          <div class="card-title">Splendor</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–4 Players</span>
+            <span class="badge">⏱ 30–60 min</span>
+            <span class="badge">💎 Engine Building</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">💎 Splendor</div>
+          <div class="back-desc">
+            Become a Renaissance gem merchant! Collect ruby, sapphire, emerald, onyx, and diamond tokens to purchase development cards that give you permanent gem bonuses. Build an engine to attract noble patrons and reach 15 prestige points first. Elegant, tense, and deeply satisfying — the perfect balance of simplicity and depth.
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">🏆 Kennerspiel Nominee 2014</span>
+            <span class="back-badge">Age 10+</span>
+            <span class="back-badge">Complexity: Medium-Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://cdn.1j1ju.com/medias/7f/91/ba-splendor-rulebook.pdf" target="_blank" rel="noopener">📖 Rules PDF</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GAME 12: RUMMY ── -->
+    <div class="card-wrapper" data-title="rummy card game sets runs meld classic" data-players="2-6" onclick="flipCard(this)">
+      <div class="card">
+        <div class="face front">
+          <span class="card-number">#12</span>
+          <span class="card-emoji">🀄</span>
+          <div class="card-title">Rummy</div>
+          <div class="card-meta">
+            <span class="badge">👥 2–6 Players</span>
+            <span class="badge">⏱ 30–60 min</span>
+            <span class="badge">♣ Classic Card Game</span>
+          </div>
+          <div class="flip-hint">👆 Tap to learn more</div>
+        </div>
+        <div class="face back">
+          <div class="back-title">🀄 Rummy</div>
+          <div class="back-desc">
+            One of the world's most enduring card games! Form melds — sets of matching ranks or runs of consecutive cards in the same suit — and be the first to go out with an empty hand. Draw from the deck or snag discards; lay down melds strategically and add to opponents' melds too. Pure, timeless card-playing joy for all ages.
+          </div>
+          <div class="back-meta">
+            <span class="back-badge">Age 6+</span>
+            <span class="back-badge">Classic</span>
+            <span class="back-badge">Complexity: Very Light</span>
+          </div>
+          <div class="back-footer">
+            <a class="rules-link" href="https://bicyclecards.com/how-to-play/rummy-rum/" target="_blank" rel="noopener">📖 Official Rules</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="noResults">No games found. Try a different search! 🎴</div>
+</main>
+
+<!-- Random Picker Modal -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <div class="spin-container" id="spinText">🎲</div>
+    <span class="modal-emoji" id="modalEmoji"></span>
+    <div class="modal-game"  id="modalGame"></div>
+    <div class="modal-desc"  id="modalDesc"></div>
+    <a  class="rules-link"   id="modalRules" href="#" target="_blank" rel="noopener">📖 View Rules</a>
+  </div>
+</div>
+
+<footer>
+  Made with ♥ for game night · Aarav Home Game Library
+</footer>
+
+<!-- SCRIPTS INJECTED IN FINAL STEP -->
+<script>
+// ─── Audio Engine (Web Audio API — no external files) ───────────────────
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+
+function resumeAC() { if (AC.state === 'suspended') AC.resume(); }
+
+function playTone(freq, type, duration, gain = 0.18, delay = 0) {
+  resumeAC();
+  const osc = AC.createOscillator();
+  const vol = AC.createGain();
+  osc.connect(vol); vol.connect(AC.destination);
+  osc.type = type; osc.frequency.value = freq;
+  const t = AC.currentTime + delay;
+  vol.gain.setValueAtTime(0, t);
+  vol.gain.linearRampToValueAtTime(gain, t + 0.01);
+  vol.gain.exponentialRampToValueAtTime(0.001, t + duration);
+  osc.start(t); osc.stop(t + duration + 0.05);
+}
+
+function playShuffle() {
+  // rapid noise bursts mimicking card shuffle
+  for (let i = 0; i < 8; i++) {
+    const buf = AC.createBuffer(1, AC.sampleRate * 0.04, AC.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * 0.3;
+    const src = AC.createBufferSource();
+    const vol = AC.createGain();
+    src.buffer = buf; src.connect(vol); vol.connect(AC.destination);
+    const t = AC.currentTime + i * 0.065;
+    vol.gain.setValueAtTime(0.25, t);
+    vol.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    src.start(t);
+  }
+}
+
+function playFlip() {
+  // whoosh + soft thud
+  playShuffle();
+  playTone(180, 'sine', 0.12, 0.12, 0.05);
+}
+
+function playClick() {
+  playTone(900, 'square', 0.07, 0.1);
+  playTone(700, 'square', 0.05, 0.08, 0.04);
+}
+
+function playDiceRoll() {
+  for (let i = 0; i < 12; i++) {
+    const buf = AC.createBuffer(1, AC.sampleRate * 0.03, AC.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * 0.5;
+    const src = AC.createBufferSource();
+    const vol = AC.createGain();
+    const flt = AC.createBiquadFilter();
+    flt.type = 'bandpass'; flt.frequency.value = 300 + Math.random() * 800;
+    src.buffer = buf; src.connect(flt); flt.connect(vol); vol.connect(AC.destination);
+    const t = AC.currentTime + i * 0.07 + Math.random() * 0.03;
+    vol.gain.setValueAtTime(0.35, t);
+    vol.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+    src.start(t);
+  }
+}
+
+function playWin() {
+  const melody = [523, 659, 784, 1047];
+  melody.forEach((f, i) => playTone(f, 'sine', 0.25, 0.2, i * 0.15));
+}
+
+// ─── Particles ───────────────────────────────────────────────────────────
+const container = document.getElementById('particles');
+const symbols   = ['♠','♥','♦','♣','🎲','🃏','🎴','★'];
+for (let i = 0; i < 28; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = 10 + Math.random() * 18;
+  p.style.cssText = `
+    left: ${Math.random() * 100}%;
+    width: ${size}px; height: ${size}px;
+    font-size: ${size * 0.95}px;
+    animation-duration: ${8 + Math.random() * 14}s;
+    animation-delay: ${-Math.random() * 20}s;
+    background: transparent;
+    color: ${['#c9860a','#b5451b','#d4882e','#7a5c3e'][i % 4]};
+    opacity: 0;
+  `;
+  p.style.borderRadius = '0';
+  p.style.background   = 'none';
+  p.textContent        = symbols[i % symbols.length];
+  container.appendChild(p);
+}
+
+// ─── Card Flip ───────────────────────────────────────────────────────────
+function flipCard(wrapper) {
+  playFlip();
+  const card = wrapper.querySelector('.card');
+  card.classList.toggle('flipped');
+  // ripple burst
+  const burst = document.createElement('div');
+  burst.style.cssText = `
+    position:fixed; border-radius:50%; pointer-events:none; z-index:999;
+    background: radial-gradient(circle, rgba(181,69,27,0.35) 0%, transparent 70%);
+    width:0; height:0; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    animation: burstAnim 0.5s ease-out forwards;
+  `;
+  document.body.appendChild(burst);
+  if (!document.getElementById('burstStyle')) {
+    const s = document.createElement('style');
+    s.id = 'burstStyle';
+    s.textContent = `@keyframes burstAnim{to{width:400px;height:400px;opacity:0}}`;
+    document.head.appendChild(s);
+  }
+  setTimeout(() => burst.remove(), 550);
+}
+
+// ─── Hover Sounds ────────────────────────────────────────────────────────
+document.querySelectorAll('.card-wrapper').forEach(w => {
+  w.addEventListener('mouseenter', () => playClick());
+});
+
+// ─── Search / Filter ─────────────────────────────────────────────────────
+const searchInput  = document.getElementById('searchInput');
+const cards        = document.querySelectorAll('.card-wrapper');
+const noResults    = document.getElementById('noResults');
+const countEl      = document.getElementById('visibleCount');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  let visible = 0;
+  cards.forEach(c => {
+    const haystack = (c.dataset.title || '') + ' ' + (c.dataset.players || '');
+    if (!q || haystack.includes(q)) {
+      c.classList.remove('hidden'); visible++;
+    } else {
+      c.classList.add('hidden');
+    }
+  });
+  countEl.textContent = visible;
+  noResults.style.display = visible === 0 ? 'block' : 'none';
+  playClick();
+});
+
+// ─── Random Picker ───────────────────────────────────────────────────────
+const GAMES = [
+  { name:'CATAN + Extension',     emoji:'🏝️', desc:'Trade resources, build settlements, and conquer the island of Catan with up to 6 players!',                   rules:'https://www.catan.com/sites/default/files/2021-06/catan_base_rules_2020_200707.pdf' },
+  { name:'Scotland Yard',          emoji:'🕵️', desc:'One player is Mr. X hiding in London; the rest are detectives hunting him down!',                            rules:'https://www.ravensburger.us/discover/scotland-yard/index.html' },
+  { name:'Sequence',               emoji:'🃏', desc:'Play cards, place chips, and build sequences of five on the board before your opponents!',                    rules:'https://www.jaxgames.com/wp-content/uploads/2019/10/Sequence-Rules.pdf' },
+  { name:'Mafia Vendetta',         emoji:'🤫', desc:'Who is the Mafia? Bluff, deduce, and vote — before the town falls or the innocent are saved!',               rules:'https://boardgamegeek.com/boardgame/134349/mafia-vendetta' },
+  { name:'Exploding Kittens NSFW', emoji:'💣', desc:'Draw cards and avoid the Exploding Kitten — hilariously inappropriate adult card game!',                    rules:'https://www.explodingkittens.com/pages/rules' },
+  { name:'Rook',                   emoji:'🐦', desc:'Classic trick-taking card game with a unique 57-card deck. Bid for trump and collect points!',               rules:'https://www.hasbro.com/common/instruct/Rook.PDF' },
+  { name:'Clue Card Game',         emoji:'🔎', desc:'Deduce who did it, with what weapon, and where — in this fast card-game version of Clue!',                  rules:'https://www.hasbro.com/common/instruct/Clue_2002.pdf' },
+  { name:'UNO Flip!',              emoji:'🔄', desc:'UNO with a dark side! Flip the deck and unleash brutal penalty cards on your friends!',                      rules:'https://service.mattel.com/instruction_sheets/GDR44-Eng.pdf' },
+  { name:'Phase 10',               emoji:'🔟', desc:'Complete 10 progressively harder phases of sets and runs — don\'t get left behind!',                        rules:'https://service.mattel.com/instruction_sheets/W4729-0920.pdf' },
+  { name:'Alive 5',                emoji:'💀', desc:'Fast survival card game — attack, dodge, and outlast all opponents to be the last one alive!',               rules:'https://boardgamegeek.com/boardgame/alive-5' },
+  { name:'Splendor',               emoji:'💎', desc:'Collect gems, buy development cards, and attract nobles in this elegant Renaissance engine-builder!',        rules:'https://cdn.1j1ju.com/medias/7f/91/ba-splendor-rulebook.pdf' },
+  { name:'Rummy',                  emoji:'🀄', desc:'Form sets and runs, meld your cards, and go out first in this timeless classic card game!',                  rules:'https://bicyclecards.com/how-to-play/rummy-rum/' },
+];
+
+const modal    = document.getElementById('modalOverlay');
+const spinText = document.getElementById('spinText');
+const modalEmoji = document.getElementById('modalEmoji');
+const modalGame  = document.getElementById('modalGame');
+const modalDesc  = document.getElementById('modalDesc');
+const modalRules = document.getElementById('modalRules');
+
+document.getElementById('randomBtn').addEventListener('click', () => {
+  resumeAC();
+  playDiceRoll();
+  modal.classList.add('open');
+
+  // Spin animation
+  let ticks = 0;
+  const total = 22;
+  spinText.textContent = '🎲';
+  const interval = setInterval(() => {
+    spinText.textContent = GAMES[ticks % GAMES.length].emoji;
+    ticks++;
+    if (ticks >= total) {
+      clearInterval(interval);
+      const pick = GAMES[Math.floor(Math.random() * GAMES.length)];
+      spinText.textContent = '';
+      modalEmoji.textContent = pick.emoji;
+      modalGame.textContent  = pick.name;
+      modalDesc.textContent  = pick.desc;
+      modalRules.href        = pick.rules;
+      playWin();
+    }
+  }, 80);
+});
+
+document.getElementById('modalClose').addEventListener('click', () => {
+  modal.classList.remove('open');
+  playClick();
+});
+modal.addEventListener('click', e => {
+  if (e.target === modal) { modal.classList.remove('open'); playClick(); }
+});
+
+// ─── Dark / Light Mode ───────────────────────────────────────────────────
+const themeBtn = document.getElementById('themeToggle');
+const html     = document.documentElement;
+let dark = false;
+
+// Detect system preference
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  dark = true; html.setAttribute('data-theme','dark'); themeBtn.textContent = '☀️';
+}
+
+themeBtn.addEventListener('click', () => {
+  dark = !dark;
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  themeBtn.textContent = dark ? '☀️' : '🌙';
+  playClick();
+});
+
+// ─── Ambient background loop (very subtle) ───────────────────────────────
+// Slow low-frequency shimmer to give the page a "living" feel
+let ambientRunning = false;
+function startAmbient() {
+  if (ambientRunning) return;
+  ambientRunning = true;
+  (function loop() {
+    if (!ambientRunning) return;
+    const osc = AC.createOscillator();
+    const vol = AC.createGain();
+    osc.connect(vol); vol.connect(AC.destination);
+    osc.type = 'sine';
+    osc.frequency.value = 55 + Math.random() * 20;
+    const t = AC.currentTime;
+    vol.gain.setValueAtTime(0, t);
+    vol.gain.linearRampToValueAtTime(0.025, t + 2);
+    vol.gain.linearRampToValueAtTime(0, t + 5);
+    osc.start(t); osc.stop(t + 5.5);
+    setTimeout(loop, 4500 + Math.random() * 2000);
+  })();
+}
+// Start ambient on first user interaction
+document.addEventListener('click', () => { resumeAC(); startAmbient(); }, { once: true });
+</script>
+
